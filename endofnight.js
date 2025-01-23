@@ -424,7 +424,7 @@ async function main() {
 
     // Set the initial night from the query or, by default, today's date.
     if(query.has("night")) setNight(query.get("night"), { eon_expid:query.get("eon_expid"), local:query.has("local") });
-    else setNight(allNights[allNights.length-1]);
+    else if(!query.has("local")) setNight(allNights[allNights.length-1]);
 
     // Convert the initial night to a date to highlight in the date picker.
     let initialDate;
