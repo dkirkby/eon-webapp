@@ -404,15 +404,17 @@ function setNight(night, {eon_expid, local=false}={}) {
 
 async function main() {
 
-    const status = document.getElementById("status");
     const now = new Date();
-    const elapsedDays = (now - new Date(assets.rundate)) / (24 * 3600 * 1000);
-    const statusText = `Endofnight script ran at ${assets.rundate} (${elapsedDays.toFixed(1)} days ago)`;
-    if(elapsedDays > 1.5) {
-        warnMsg(status, statusText);
-    }
-    else {
-        infoMsg(status, statusText);
+    if(assets) {
+        const status = document.getElementById("status");
+        const elapsedDays = (now - new Date(assets.rundate)) / (24 * 3600 * 1000);
+        const statusText = `Endofnight script ran at ${assets.rundate} (${elapsedDays.toFixed(1)} days ago)`;
+        if(elapsedDays > 1.5) {
+            warnMsg(status, statusText);
+        }
+        else {
+            infoMsg(status, statusText);
+        }
     }
     const pagenow = document.getElementById("pagenow");
     infoMsg(pagenow, `Loading ${window.location.href} at ${now.toISOString()}`);
