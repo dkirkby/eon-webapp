@@ -34,17 +34,17 @@ try {
         const disabled = classes != "available";
         return [night, { disabled, classes }];
     }));
-
-    import AirDatepicker from 'https://cdn.jsdelivr.net/npm/air-datepicker@3.5.3/+esm';
-
-    //import sheet from 'https://cdn.jsdelivr.net/npm/air-datepicker@3.5.3/air-datepicker.min.css' with { type: 'css' };
-    const sheet = await importCSS('https://cdn.jsdelivr.net/npm/air-datepicker@3.5.3/air-datepicker.min.css');
-    document.adoptedStyleSheets = [ sheet ];
 }
 catch(error) {
     console.log('Unable to load assets.json');
     console.log(error);
 }
+
+import AirDatepicker from 'https://cdn.jsdelivr.net/npm/air-datepicker@3.5.3/+esm';
+
+//import sheet from 'https://cdn.jsdelivr.net/npm/air-datepicker@3.5.3/air-datepicker.min.css' with { type: 'css' };
+const sheet = await importCSS('https://cdn.jsdelivr.net/npm/air-datepicker@3.5.3/air-datepicker.min.css');
+document.adoptedStyleSheets = [ sheet ];
 
 // TODO: check if these are the latest versions
 import {decompressSync,strFromU8} from "https://cdn.skypack.dev/fflate?min";
