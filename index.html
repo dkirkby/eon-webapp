@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DESI End of Night</title>
+    <link rel="modulepreload" href="endofnight.js" />
+    <!--
+    I can't get this to work
+    See https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/rel/preload
+    <link rel="preload" as="fetch" href="https://data.desi.lbl.gov/desi/engineering/focalplane/endofnight/assets.json" />
+    -->
+    <script type="module" src="endofnight.js"></script>
+    <link rel="stylesheet" href="endofnight.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@observablehq/inspector@5/dist/inspector.css">
+</head>
+<body>
+    <h1 id="title">Focalplane End-of-Night Summary</h1>
+
+    <div id="top">
+        <div id="datepicker"></div>
+        <div id="top-right">
+            <div id="status">Initializing...</div>
+            <div id="pagenow"></div>
+            <div id="dataURL"></div>
+            <div id="srcURL"></div>
+            <div id="summary"></div>
+            <div id="load-moves"></div>
+            <div id="load-hwtables"></div>
+            <div id="load-summary"></div>
+            <div id="load-calib"></div>
+            <div id="load-front"></div>
+            <div id="load-back"></div>
+            <div id="setup-info"></div>
+            <div id="park-info"></div>
+            <div id="index-info"></div>
+            <div id="snapshot-info"></div>
+            <div id="obsday"></div>
+        </div>
+    </div>
+
+    <div id="displayOptions"></div>
+    <div id="canvas"></div>
+    <div id="targetDiv">
+        <div id="target"></div>
+        <div id="nextButton"></div>
+        <div id="resetButton"></div>
+    </div>
+    <div id="targetInfo"></div>
+
+    <details>
+        <summary>Expert</summary>
+        <div id="expertForm"></div>
+        <div id="expertCommands"></div>
+    </details>
+
+    <details>
+        <summary>Plots</summary>
+        <div id="targetPlots"></div>
+    </details>
+
+    <details>
+        <summary>Moves DB</summary>
+        <div id="targetMoves"></div>
+        <div id="selectedMove"></div>
+    </details>
+
+    <details>
+        <summary>Move Table Animation</summary>
+        <div id="anglesPlot"></div>
+        <div id="animationFrame"></div>
+        <div id="hwModel"></div>
+        <div id="hwDisplay"></div>
+    </details>
+
+    <details>
+        <summary>Calibration Updates</summary>
+        <div id="updatesTable"></div>
+    </details>
+
+    <div id="inputStyle"></div>
+</body>
+</html>
