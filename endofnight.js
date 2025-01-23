@@ -18,25 +18,33 @@ const DATA = new URL("https://data.desi.lbl.gov/desi/spectro/data/");
 
 const ASSETS = new URL(EON);
 ASSETS.pathname += 'assets.json';
-//import assets from "https://data.desi.lbl.gov/desi/engineering/focalplane/endofnight/assets.json" with { type: 'json' };
-const assets = await importJSON(ASSETS);
 
-const allNights = Object.keys(assets.nights);
-console.log(`Loaded ${allNights.length} nights from rundate ${assets.rundate}`);
-const renderInfo = new Map(allNights.map(night => {
-    const {expids, EON} = assets.nights[night];
-    let classes;
-    if(expids.length == 0) classes = "nodata";
-    else classes = EON ? "available" : "missing";
-    const disabled = classes != "available";
-    return [night, { disabled, classes }];
-}));
+let assets;
+try {
+    //import assets from "https://data.desi.lbl.gov/desi/engineering/focalplane/endofnight/assets.json" with { type: 'json' };
+    assets = await importJSON(ASSETS);
 
-import AirDatepicker from 'https://cdn.jsdelivr.net/npm/air-datepicker@3.5.3/+esm';
+    const allNights = Object.keys(assets.nights);
+    console.log(`Loaded ${allNights.length} nights from rundate ${assets.rundate}`);
+    const renderInfo = new Map(allNights.map(night => {
+        const {expids, EON} = assets.nights[night];
+        let classes;
+        if(expids.length == 0) classes = "nodata";
+        else classes = EON ? "available" : "missing";
+        const disabled = classes != "available";
+        return [night, { disabled, classes }];
+    }));
 
-//import sheet from 'https://cdn.jsdelivr.net/npm/air-datepicker@3.5.3/air-datepicker.min.css' with { type: 'css' };
-const sheet = await importCSS('https://cdn.jsdelivr.net/npm/air-datepicker@3.5.3/air-datepicker.min.css');
-document.adoptedStyleSheets = [ sheet ];
+    import AirDatepicker from 'https://cdn.jsdelivr.net/npm/air-datepicker@3.5.3/+esm';
+
+    //import sheet from 'https://cdn.jsdelivr.net/npm/air-datepicker@3.5.3/air-datepicker.min.css' with { type: 'css' };
+    const sheet = await importCSS('https://cdn.jsdelivr.net/npm/air-datepicker@3.5.3/air-datepicker.min.css');
+    document.adoptedStyleSheets = [ sheet ];
+}
+catch(error) {
+    console.log('Unable to load assets.json');
+    console.log(error);
+}
 
 // TODO: check if these are the latest versions
 import {decompressSync,strFromU8} from "https://cdn.skypack.dev/fflate?min";
@@ -210,8 +218,8 @@ function nightToDate(night) {
 
 var resetUpdates;
 
-function setNight(night, {eon_expid}={}) {
-    console.log('setNight', night, eon_expid);
+function setNight(night, {eon_expid, local=false}={}) {
+    console.log('setNight', night, eon_expid, local);
     const summary = document.getElementById("summary");
     if(!night.match(nightPattern)) {
         console.log(`Invalid night: "${night}".`);
@@ -231,20 +239,28 @@ function setNight(night, {eon_expid}={}) {
     const dataURL = new URL(DATA);
     dataURL.pathname += night.toString() + "/";
     document.getElementById("dataURL").innerHTML = `<span>${theNight} raw data at <a href="${dataURL.href}">${dataURL.href}</a></span>`;
-    // Look up this night in the assets list
-    if(!(night in assets.nights) || !assets.nights[night]?.EON) {
-        console.log(`No EON data for ${night}.`);
-        errorMsg(summary, `${theNight} is not listed in the assets`);
-        // Try to read this night anyway
-    }
-    else {
-        const nexp = assets.nights[theNight].expids.length;
-        infoMsg(summary, `${theNight} has ${nexp} positioning exposures`);
+    if(!local) {
+        // Look up this night in the assets list
+        if(!(night in assets.nights) || !assets.nights[night]?.EON) {
+            console.log(`No EON data for ${night}.`);
+            errorMsg(summary, `${theNight} is not listed in the assets`);
+            // Try to read this night anyway
+        }
+        else {
+            const nexp = assets.nights[theNight].expids.length;
+            infoMsg(summary, `${theNight} has ${nexp} positioning exposures`);
+        }
     }
     // Load the assets for this night.
     const promises = [];
     const nightURLs = [ ];
-    if(!(eon_expid == null)) {
+    if(local) {
+        // Look in ./local/YYYYMMDD/ relative to the location of index.html
+        const nightURL = new URL("./local/", window.location.origin + window.location.pathname);
+        nightURL.pathname += theNight;
+        nightURLs.push(nightURL);
+    }
+    else if(!(eon_expid == null)) {
         const nightURL = new URL(dataURL);
         nightURL.pathname += eon_expid;
         nightURLs.push(nightURL);
@@ -405,7 +421,7 @@ async function main() {
     const query = new URLSearchParams(window.location.search);
 
     // Set the initial night from the query or, by default, today's date.
-    if(query.has("night")) setNight(query.get("night"), { eon_expid: query.get("eon_expid") });
+    if(query.has("night")) setNight(query.get("night"), { eon_expid:query.get("eon_expid"), local:query.has("local") });
     else setNight(allNights[allNights.length-1]);
 
     // Convert the initial night to a date to highlight in the date picker.
@@ -419,26 +435,28 @@ async function main() {
         console.log("unable to set initialDate");
     }
 
-    console.log("creating date-picker...");
-    const datepicker = new AirDatepicker('#datepicker', {
-        locale: datepickerLocaleEn,
-        dateFormat: 'yyyy/MM/dd', // also set in the locale
-        minDate: nightToDate(allNights[0]),
-        maxDate: nightToDate(allNights[allNights.length - 1]),
-        multipleDates: false,
-        selectedDates: initialDate,
-        onRenderCell: ({date, cellType}) => {
-            const night = dateToNight(date);
-            return (cellType == "day") ? renderInfo.get(night) : { };
-            // datepicker does not disable in the month/year views correctly as of v3.5.3
-            // see https://github.com/t1m0n/air-datepicker/issues/637
-        },
-        onSelect: ({date, formattedDate, datepicker}) => {
-            const night = dateToNight(date);
-            console.log("date-picker select", date, night, formattedDate, datepicker.selectedDates);
-            setNight(night);
-        },
-    });
+    if(!query.has("local")) {
+        console.log("creating date-picker...");
+        const datepicker = new AirDatepicker('#datepicker', {
+            locale: datepickerLocaleEn,
+            dateFormat: 'yyyy/MM/dd', // also set in the locale
+            minDate: nightToDate(allNights[0]),
+            maxDate: nightToDate(allNights[allNights.length - 1]),
+            multipleDates: false,
+            selectedDates: initialDate,
+            onRenderCell: ({date, cellType}) => {
+                const night = dateToNight(date);
+                return (cellType == "day") ? renderInfo.get(night) : { };
+                // datepicker does not disable in the month/year views correctly as of v3.5.3
+                // see https://github.com/t1m0n/air-datepicker/issues/637
+            },
+            onSelect: ({date, formattedDate, datepicker}) => {
+                const night = dateToNight(date);
+                console.log("date-picker select", date, night, formattedDate, datepicker.selectedDates);
+                setNight(night);
+            },
+        });
+    }
 
     console.log("initializing observable components...");
     runtime = new Runtime().module(define, name => {
