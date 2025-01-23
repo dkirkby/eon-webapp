@@ -19,14 +19,14 @@ const DATA = new URL("https://data.desi.lbl.gov/desi/spectro/data/");
 const ASSETS = new URL(EON);
 ASSETS.pathname += 'assets.json';
 
-let assets;
+let assets, allNights, renderInfo;
 try {
     //import assets from "https://data.desi.lbl.gov/desi/engineering/focalplane/endofnight/assets.json" with { type: 'json' };
     assets = await importJSON(ASSETS);
 
-    const allNights = Object.keys(assets.nights);
+    allNights = Object.keys(assets.nights);
     console.log(`Loaded ${allNights.length} nights from rundate ${assets.rundate}`);
-    const renderInfo = new Map(allNights.map(night => {
+    renderInfo = new Map(allNights.map(night => {
         const {expids, EON} = assets.nights[night];
         let classes;
         if(expids.length == 0) classes = "nodata";
