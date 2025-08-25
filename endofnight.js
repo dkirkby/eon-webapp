@@ -53,7 +53,7 @@ import {csvParse,dsvFormat,autoType} from "https://cdn.skypack.dev/d3-dsv@3";
 import * as d3Array from "https://cdn.skypack.dev/d3-array@3";
 
 import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@5/dist/runtime.js";
-import define from "https://api.observablehq.com/@dkirkby/focal-plane-inspector-2@4029.js?v=4";
+import define from "https://api.observablehq.com/@dkirkby/focal-plane-inspector-2@4048.js?v=4";
 var runtime;
 
 const httpErrorStatusCodes = new Map([
