@@ -47,10 +47,10 @@ const sheet = await importCSS('https://cdn.jsdelivr.net/npm/air-datepicker@3.5.3
 document.adoptedStyleSheets = [ sheet ];
 
 // TODO: check if these are the latest versions
-import {decompressSync,strFromU8} from "https://cdn.skypack.dev/fflate?min";
+import {decompressSync,strFromU8} from "https://cdn.jsdelivr.net/npm/fflate/+esm";
 import {load as yamlLoad} from "https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.mjs";
-import {csvParse,dsvFormat,autoType} from "https://cdn.skypack.dev/d3-dsv@3";
-import * as d3Array from "https://cdn.skypack.dev/d3-array@3";
+import {csvParse,dsvFormat,autoType} from "https://cdn.jsdelivr.net/npm/d3-dsv/+esm";
+import * as d3Array from "https://cdn.jsdelivr.net/npm/d3-array/+esm";
 
 import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@5/dist/runtime.js";
 import define from "https://api.observablehq.com/@dkirkby/focal-plane-inspector-2@4048.js?v=4";
