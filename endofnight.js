@@ -46,9 +46,9 @@ import AirDatepicker from 'https://cdn.jsdelivr.net/npm/air-datepicker@3.5.3/+es
 const sheet = await importCSS('https://cdn.jsdelivr.net/npm/air-datepicker@3.5.3/air-datepicker.min.css');
 document.adoptedStyleSheets = [ sheet ];
 
-// TODO: check if these are the latest versions
+// All imports from jsdelivr CDN
 import {decompressSync,strFromU8} from "https://cdn.jsdelivr.net/npm/fflate/+esm";
-import {load as yamlLoad} from "https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.mjs";
+import {load as yamlLoad} from "https://cdn.jsdelivr.net/npm/js-yaml/+esm";
 import {csvParse,dsvFormat,autoType} from "https://cdn.jsdelivr.net/npm/d3-dsv/+esm";
 import * as d3Array from "https://cdn.jsdelivr.net/npm/d3-array/+esm";
 
