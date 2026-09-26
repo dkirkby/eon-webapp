@@ -82,6 +82,8 @@ async function fetchFirstSuccessful(urls, name, callback, options = {}) {
     for (const _url of urls) {
         const url = new URL(_url);
         url.pathname += name;
+        //Uncomment next line to bypass any cached version of the file
+        //url.searchParams.set("v", "1");
         console.log(`fetchFirstSuccessful: trying ${url}`);
         if(callback) callback(url);
         try {
@@ -115,7 +117,10 @@ async function parseECSV(source) {
     return source.text()
     .then(txt=>{
         const lines=txt.split("\n");
-        let comments=lines.filter(line=>line.startsWith("# ")).map(line=>line.slice(2));
+        let comments=lines
+            .filter(line=>line.startsWith("# "))
+            .map(line=>line.slice(2))
+            .map(line=>line.replace(/!?<tag:yaml\.org,2002:omap>|!!omap/g, '')); // remove any !!omap tags
         if(!comments[0].trim().startsWith("%ECSV")) throw new Error("Missing %ECSV header");
         const version=Number(comments[0].trim().slice(6));
         comments=comments.slice(1).join("\n");
@@ -124,6 +129,14 @@ async function parseECSV(source) {
     })
     .then(({version,comments,body})=>{
         const header=yamlLoad(comments);
+        // astropy >= 8.0.0 converts the meta dict to an OrderedDict, which is then
+        // emitted as a custom object using !!omap. js-yaml then reads it into an
+        // Array of single-key objects. Detect and fix this here.
+        if(Array.isArray(header.meta)) {
+            console.log("Fixing ECSV header.meta written by astropy with !!omap");
+            header.meta = Object.assign({}, ...header.meta);
+        }
+        console.log('parseECSV:', header);
         if(!header?.datatype) throw new Error("Header is missing required datatype");
         const delimiter=header?.delimiter ?? " ";
         const data=dsvFormat(delimiter).parse(body, autoType);
